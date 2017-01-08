@@ -1,0 +1,110 @@
+name:           cabal-refact
+version:        0
+synopsis:       Refactor tool for .cabal files
+description:    Refactor tool for .cabal files, supporting among all things the build-depends editing.
+category:       Web
+homepage:       https://github.com/phadej/cabal-refact#readme
+bug-reports:    https://github.com/phadej/cabal-refact/issues
+author:         Oleg Grenrus <oleg.grenrus@iki.fi>
+maintainer:     Oleg Grenrus <oleg.grenrus@iki.fi>
+license:        BSD3
+license-file:   LICENSE
+tested-with:    GHC == 8.0.1
+build-type:     Custom
+cabal-version:  >= 1.10
+
+extra-source-files:
+    CHANGELOG.md
+    README.md
+    -- cabal-refact-populate: fixtures/**/*.*
+
+source-repository head
+  type: git
+  location: https://github.com/phadej/aeson-compat
+
+-- Comment
+library
+  hs-source-dirs:
+      src
+  ghc-options: -Wall
+  build-depends: base      >=4.9    && <4.10,
+      ansi-wl-pprint,
+      bytestring,
+      composition-extra == 2.0.*,
+      directory,
+      filepath,
+      indentation-trifecta == 0.0.1,
+      lens >=4.15.1 && <4.16,
+      mtl >= 2.2.1 && <2.3,
+      parsers   >=0.12.4 && <0.13,
+      Glob,
+      regex-applicative,
+      regex-applicative-text,
+      semigroupoids,
+      text,
+      these,
+      trifecta  >=1.6.1  && <1.7,
+      vector >=0.11 && <0.13
+  exposed-modules:
+      Distribution.Refact
+      Distribution.Refact.Internal.Prelude
+      Distribution.Refact.Annotations
+      Distribution.Refact.Parser
+      Distribution.Refact.Pretty
+      Distribution.Refact.Refactoring.Identity
+      Distribution.Refact.Refactoring.IncreaseRevision
+      Distribution.Refact.Refactoring.PopulateExtraSourceFiles
+      Distribution.Refact.Tools.Edit
+      Distribution.Refact.Tools.Edit.Algorithm
+      Distribution.Refact.Tools.Pretty
+      Distribution.Refact.Tools.Trifecta
+      Distribution.Refact.Types.Pos
+      Distribution.Refact.Types.Refactoring
+      Distribution.Refact.Types.Structure
+  default-language: Haskell2010
+  other-extensions:
+    DeriveFunctor
+    DeriveFoldable
+    DeriveTraversable
+    GeneralizedNewtypeDeriving
+    ScopedTypeVariables
+    TupleSections
+
+executable cabal-refact
+  default-language: Haskell2010
+  main-is: Main.hs
+  hs-source-dirs : cli
+  build-depends:
+    base,
+    cabal-refact,
+    filepath,
+    text,
+    optparse-applicative == 0.13.*
+
+test-suite doctests
+  default-language: Haskell2010
+  type:           exitcode-stdio-1.0
+  main-is:        doctests.hs
+  ghc-options:    -Wall -threaded
+  hs-source-dirs: tests
+
+  build-tools: hsc2hs
+  build-depends:
+    base,
+    directory,
+    filepath,
+    doctest >= 0.11 && <0.12
+
+test-suite tests
+  default-language: Haskell2010
+  type            : exitcode-stdio-1.0
+  main-is         : Tests.hs
+  hs-source-dirs  : tests
+  build-depends:
+    base,
+    cabal-refact,
+    directory,
+    filepath,
+    text,
+    tasty,
+    tasty-hunit

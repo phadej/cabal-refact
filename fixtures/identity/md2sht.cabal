@@ -1,0 +1,56 @@
+name:                md2sht
+version:             0.1.0.0
+synopsis:            converts Markdown to inline-Styled HTml
+description:         Please see README.md
+homepage:            https://github.com/justinwoo/md2sht#readme
+license:             MIT
+license-file:        LICENSE
+author:              Justin Woo
+maintainer:          moomoowoo@gmail.com
+copyright:           2016 Justin Woo
+category:            Web
+build-type:          Simple
+-- extra-source-files:
+cabal-version:       >=1.10
+
+library
+  hs-source-dirs:      src
+  exposed-modules:     MD2SHT
+                     , MD2SHT.CSSParser
+                     , MD2SHT.Types
+  build-depends:       base >= 4.7 && < 5
+                     , attoparsec
+                     , text
+                     , tagsoup
+  default-language:    Haskell2010
+
+executable md2sht
+  hs-source-dirs:      app
+  main-is:             Main.hs
+  ghc-options:         -threaded -rtsopts -with-rtsopts=-N
+  build-depends:       base
+                     , md2sht
+                     , attoparsec
+                     , containers
+                     , pandoc >= 1.3
+                     , text
+                     , tagsoup
+                     , optparse-generic
+  default-language:    Haskell2010
+
+test-suite md2sht-test
+  type:                exitcode-stdio-1.0
+  hs-source-dirs:      test
+  main-is:             Spec.hs
+  build-depends:       base
+                     , md2sht
+                     , hspec
+                     , attoparsec
+                     , text
+                     , tagsoup
+  ghc-options:         -threaded -rtsopts -with-rtsopts=-N
+  default-language:    Haskell2010
+
+source-repository head
+  type:     git
+  location: https://github.com/justinwoo/md2sht

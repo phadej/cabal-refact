@@ -1,0 +1,31 @@
+name:                fake-deps
+version:             0.0
+synopsis:            Not a real package.  Just dependencies to appease Travis
+description:         None
+maintainer:          Aleksey Kliger <aleksey@lambdageek.org>
+category:            Fake
+build-type:          Simple
+cabal-version:       >=1.10
+tested-with:         GHC == 7.6.3, GHC == 7.8.4, GHC == 7.10.3, GHC == 8.0.1
+
+library
+  hs-source-dirs:      src
+  build-depends:       base >=4.6 && <4.10,
+                       mtl >=2.1,
+                       trifecta >=1.4 && <1.6,
+                       parsers >=0.10 && <0.13,
+                       parsec >=3.1.5
+  default-language:    Haskell2010
+  ghc-options:         -Wall
+
+test-suite test-indentation
+  main-is: indentation-parsec/tests/all-tests.hs
+  default-language:
+    Haskell2010
+  type:
+    exitcode-stdio-1.0
+  build-depends:
+      base >= 4 && < 5
+    , tasty >= 0.10
+    , tasty-hunit >= 0.9
+    , fake-deps

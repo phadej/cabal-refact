@@ -1,0 +1,25 @@
+name:           cabal-refact
+version:        0
+x-revision:     2
+synopsis:       Refactor tool for .cabal files
+description:    Refactor tool for .cabal files, supporting among all things the build-depends editing.
+category:       Web
+homepage:       https://github.com/phadej/cabal-refact#readme
+bug-reports:    https://github.com/phadej/cabal-refact/issues
+author:         Oleg Grenrus <oleg.grenrus@iki.fi>
+maintainer:     Oleg Grenrus <oleg.grenrus@iki.fi>
+license:        BSD3
+license-file:   LICENSE
+tested-with:    GHC == 8.0.1
+build-type:     Custom
+cabal-version:  >= 1.10
+
+extra-source-files:
+    CHANGELOG.md
+    README.md
+    -- cabal-refact-populate: fixtures/**/*.*
+    fixtures/foo.cabal
+
+source-repository head
+  type: git
+  location: https://github.com/phadej/aeson-compat

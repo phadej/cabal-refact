@@ -1,0 +1,6 @@
+resolver: nightly-2016-12-31
+packages:
+- .
+extra-deps:
+- indentation-trifecta-0.0.1 
+flags: {}

@@ -1,0 +1,4 @@
+name:           cabal-refact
+version:        0
+synopsis:       Refactor tool for .cabal files
+description:    Refactor tool for .cabal files, supporting among all things the build-depends editing.
