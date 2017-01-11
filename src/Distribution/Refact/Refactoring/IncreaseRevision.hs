@@ -19,9 +19,9 @@ setRevisionRefactoring = updateRevisionRefactoring . const
 updateRevisionRefactoring :: (Maybe Int -> Int) -> Refactoring
 updateRevisionRefactoring upd fs = case fs ^? topLevelField fieldName of
     -- no revision, use zero
-    Nothing -> (review _Field <$> insertAfterVersion as) <> bs
+    Nothing -> (review _Field  <$> insertAfterVersion as) <> bs
     -- otherwise, update
-    Just _ -> fs & topLevelField fieldName %~ updateRevision
+    Just _ -> fs & topLevelField fieldName %~ upd . Just
   where
     fieldName :: Text
     fieldName = "x-revision"
@@ -29,30 +29,25 @@ updateRevisionRefactoring upd fs = case fs ^? topLevelField fieldName of
     -- fields and rest
     (as, bs) = spanMaybe (preview _Field) fs
 
-    ver :: Text
-    ver = upd Nothing ^. re _Show . packed
+    ver :: Int
+    ver = upd Nothing
 
-    ver' :: [FieldLine D]
-    ver' = [FieldLine (D 0 $ length (fieldName ^. unpacked) + 3) ver]
+    ver' :: FieldValue D
+    ver' = FieldNumber (D 0 $ length (fieldName ^. unpacked) + 3) ver
 
     insertAfterVersion [] = [(Name (D 1 0) fieldName, mempty, ver')]
     insertAfterVersion (f@(Name d n, d', fls) : rest)
         | n == "version"
             = f
-            : (Name (d & dLine %~ max 1) fieldName, d', mimic fls d')
+            : (Name (d & dLine %~ max 1) fieldName, d', mimic d $ firstOf folded fls)
             : rest
         | otherwise = f : insertAfterVersion rest
 
-    mimic []                  d = [FieldLine (d <> D 0 2) ver]
-    mimic (FieldLine d _ : _) _ = [FieldLine d ver]
+    mimic d Nothing  = FieldNumber (d <> D 0 2) ver
+    mimic _ (Just d) = FieldNumber d ver
 
-    updateRevision []                  = ver'
-    updateRevision (FieldLine d v : _) =
-        let v' = upd (v ^? unpacked . _Show) ^. re _Show . packed
-        in [FieldLine d v']
-
-topLevelField :: Applicative f => Text -> LensLike' f [Field D] [FieldLine D]
-topLevelField n = traverse . _Field . filtered (\t -> t ^. _1 . nameText == n) . _3
+topLevelField :: Applicative f => Text -> LensLike' f [Field D] Int
+topLevelField n = traverse . _Field . filtered (\t -> t ^. _1 . nameText == n) . _3 . _FieldNumber . _2
 
 spanMaybe :: (a -> Maybe b) -> [a] -> ([b], [a])
 spanMaybe _ xs@[]       =  ([], xs)

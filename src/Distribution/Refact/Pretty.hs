@@ -23,7 +23,7 @@ prettyField :: Field Pos -> W ()
 prettyField (Field n p fs) = do
     prettyName n
     prettyTextAt p ":"
-    traverse_ prettyFieldLine fs
+    prettyFieldValue fs
 prettyField (Section n t fs) = do
     prettyName n
     when (isn't _Empty t) $ do
@@ -35,6 +35,10 @@ prettyField (Comment p t) = do
 
 prettyName :: Name Pos -> W ()
 prettyName (Name p t) = prettyTextAt p t
+
+prettyFieldValue :: FieldValue Pos -> W ()
+prettyFieldValue (FieldLines fls)  = traverse_ prettyFieldLine fls
+prettyFieldValue (FieldNumber p n) = prettyTextAt p (n ^. re _Show . packed)
 
 prettyFieldLine :: FieldLine Pos -> W ()
 prettyFieldLine (FieldLine p t) = prettyTextAt p t
