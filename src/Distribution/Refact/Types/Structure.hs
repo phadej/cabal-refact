@@ -36,12 +36,18 @@ _Field = prism f g
 -- We parse some fields into different formats, but by default they are 'FieldLines'.
 data FieldValue ann
     = FieldLines [FieldLine ann]  -- ^ /Default:/ collection of non-empty lines
+    | FieldNumber !ann !Int       -- e.g. @x-revision@
   deriving (Eq, Show, Functor, Foldable, Traversable)
 
 _FieldLines :: Prism' (FieldValue a) [FieldLine a]
 _FieldLines = prism FieldLines $ \v -> case v of
     FieldLines x -> Right x
-    -- _            -> Left v
+    _            -> Left v
+
+_FieldNumber :: Prism' (FieldValue a) (a, Int)
+_FieldNumber = prism (uncurry FieldNumber) $ \v -> case v of
+    FieldNumber ann n -> Right (ann, n)
+    _                 -> Left v
 
 -- | A line of text representing the value of a field from a Cabal file.
 -- A field may contain multiple lines.

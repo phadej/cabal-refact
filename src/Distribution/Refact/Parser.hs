@@ -1,3 +1,4 @@
+{-# LANGUAGE OverloadedStrings #-}
 module Distribution.Refact.Parser (
     parseFields,
     ) where
@@ -15,26 +16,37 @@ import Text.Trifecta.Delta (Delta (..), HasDelta (..), column)
 parseFields :: FilePath -> Text -> Result [Field SrcSpan]
 parseFields = runIParser cabalFileParser
 
-cabalFileParser :: (CharParsing m, DeltaParsing m, IndentationParsing m) => m [Field SrcSpan]
+cabalFileParser :: (DeltaParsing m, IndentationParsing m) => m [Field SrcSpan]
 cabalFileParser = fieldsParser <* eof
 
-fieldsParser :: (CharParsing m, DeltaParsing m, IndentationParsing m) => m [Field SrcSpan]
+fieldsParser :: (DeltaParsing m, IndentationParsing m) => m [Field SrcSpan]
 fieldsParser = many $
     absoluteIndentation fieldParser <|> localIndentation Any commentParser
 
-fieldParser :: (CharParsing m, DeltaParsing m, IndentationParsing m) => m (Field SrcSpan)
+fieldParser :: (DeltaParsing m, IndentationParsing m) => m (Field SrcSpan)
 fieldParser = do
     name <- nameParser
     fieldParser' name <|> sectionParser name
 
-fieldParser' :: (CharParsing m, DeltaParsing m, IndentationParsing m) => Name SrcSpan -> m (Field SrcSpan)
+fieldParser'
+    :: (DeltaParsing m, IndentationParsing m)
+    => Name SrcSpan -> m (Field SrcSpan)
 fieldParser' name = Field name
     <$> srcSpanParser const (char ':')
-    <* spaces'
-    <*> fieldLinesParser
+    <*  spaces'
+    <*> fieldValueParser (name ^. nameText)
+
+fieldValueParser
+    :: (DeltaParsing m, IndentationParsing m)
+    => Text -> m (FieldValue SrcSpan)
+fieldValueParser name = fromMaybe fieldLinesParser $ x ^? ix name
+  where
+    x = toMapOf (folded . ifolded)
+        [ ("x-revision", fieldNumberParser)
+        ]
 
 fieldLinesParser
-    :: (CharParsing m, DeltaParsing m, IndentationParsing m)
+    :: (DeltaParsing m, IndentationParsing m)
     => m (FieldValue SrcSpan)
 fieldLinesParser = FieldLines <$> fieldlines
   where
@@ -42,18 +54,25 @@ fieldLinesParser = FieldLines <$> fieldlines
     fieldlines = filter (not . fieldLineNull) <$> localIndentation Gt (many l)
     l = srcSpanParser (\s -> FieldLine s . view packed) (many $ satisfy (/= '\n')) <* nl
 
-sectionParser :: (CharParsing m, DeltaParsing m, IndentationParsing m) => Name SrcSpan -> m (Field SrcSpan)
+fieldNumberParser
+    :: (DeltaParsing m, IndentationParsing m)
+    => m (FieldValue SrcSpan)
+fieldNumberParser =
+    spaces' *> optional nl *>
+    srcSpanParser FieldNumber integral <* nl
+
+sectionParser :: (DeltaParsing m, IndentationParsing m) => Name SrcSpan -> m (Field SrcSpan)
 sectionParser name =
     Section name <$> sectionArgs <*> localIndentation Gt fieldsParser
   where
     sectionArgs = view packed <$> manyTill (satisfy (/= ':')) nl
 
-commentParser :: (CharParsing m, DeltaParsing m, IndentationParsing m) => m (Field SrcSpan)
+commentParser :: (DeltaParsing m, IndentationParsing m) => m (Field SrcSpan)
 commentParser = (srcSpanParser Comment $ view packed <$> p) <* nl
   where
     p = (<>) <$> string "--" <*> many (satisfy (/= '\n'))
 
-nameParser :: (CharParsing m, DeltaParsing m) => m (Name SrcSpan)
+nameParser :: (DeltaParsing m) => m (Name SrcSpan)
 nameParser = srcSpanParser Name name' <* spaces' <?> "name"
   where
     name' = fmap (view packed) $ (:) <$> hp <*> tp

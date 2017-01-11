@@ -7,11 +7,14 @@ module Distribution.Refact.Tools.Trifecta (
     -- * Additional parsers
     spaces',
     nl,
+    integral,
     ) where
 
 import Prelude ()
 import Distribution.Refact.Internal.Prelude
 
+import Data.Char                 (ord)
+import Data.List                 (foldl')
 import Text.Trifecta             hiding (Parser)
 import Text.Trifecta.Delta
 import Text.Trifecta.Indentation hiding (IndentationParserT)
@@ -46,3 +49,8 @@ spaces' = skipMany (oneOf " \t")
 
 nl :: (CharParsing m, IndentationParsing m) => m ()
 nl = newline *> localIndentation Any spaces
+
+integral :: (Num a, CharParsing m) => m a
+integral = foldl' (\x y -> x * 10 + y) 0 . map toNumber <$> some digit <?> "integer"
+  where
+    toNumber c = fromIntegral (ord c - ord '0')

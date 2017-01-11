@@ -4,9 +4,9 @@ module Distribution.Refact.Tools.Edit where
 import Prelude ()
 import Distribution.Refact.Internal.Prelude
 
-import System.IO (stdout)
-import Data.Monoid (Endo (..))
 import Control.Monad.Writer.Strict (execWriter, tell)
+import Data.Monoid                 (Endo (..))
+import System.IO                   (stdout)
 
 import qualified Data.Text                    as T
 import qualified Text.PrettyPrint.ANSI.Leijen as ANSI

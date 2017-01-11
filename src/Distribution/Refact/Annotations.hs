@@ -9,7 +9,7 @@ import Distribution.Refact.Types.Pos
 import Distribution.Refact.Types.Structure
 
 -- TODO: use firstOf1
-import Data.Semigroup      (First (..), Last (..))
+import Data.Semigroup (First (..), Last (..))
 
 -------------------------------------------------------------------------------
 -- SrcSpan -> D
@@ -36,11 +36,12 @@ delField p f = case f of
     g (SS p' _) = diffPos p p'
 
 delFieldValue :: Pos -> FieldValue SrcSpan -> FieldValue D
-delFieldValue p (FieldLines fls) = FieldLines (delFieldLines p fls)
+delFieldValue p (FieldLines fls)   = FieldLines (delFieldLines p fls)
+delFieldValue p (FieldNumber ss n) = FieldNumber (diffPos p $ ss ^. ssStart) n
 
 delFieldLines :: Pos -> [FieldLine SrcSpan] -> [FieldLine D]
 delFieldLines _ [] = []
-delFieldLines p (FieldLine ss t : fls) = 
+delFieldLines p (FieldLine ss t : fls) =
     let p' = ss ^. ssStart
     in FieldLine (diffPos p p') t : delFieldLines p' fls
 
@@ -83,7 +84,8 @@ posField p (Section n t fs) = Section
 posField p (Comment _ t) = Comment p t
 
 posFieldValue :: Pos -> FieldValue D -> FieldValue Pos
-posFieldValue p (FieldLines fls) = FieldLines (posFieldLines p fls)
+posFieldValue p (FieldLines fls)  = FieldLines (posFieldLines p fls)
+posFieldValue p (FieldNumber d n) = FieldNumber (addPos p d) n
 
 posFieldLines :: Pos -> [FieldLine D] -> [FieldLine Pos]
 posFieldLines _ [] = []

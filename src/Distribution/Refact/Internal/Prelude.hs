@@ -22,6 +22,8 @@ module Distribution.Refact.Internal.Prelude (
     Endo (..),
     -- * bifunctors
     Bifunctor (..),
+    -- * containers
+    toMapOf,
     -- * semigroups
     Semigroup (..),
     -- * semigroupoids
@@ -55,6 +57,7 @@ import Data.Functor               (void)
 import Data.Int                   (Int64)
 import Data.List                  (sortBy, sortOn)
 import Data.List.NonEmpty         (NonEmpty (..), some1)
+import Data.Map.Lens              (toMapOf)
 import Data.Maybe                 (fromMaybe, listToMaybe)
 import Data.Monoid                (Endo (..))
 import Data.Semigroup             (Semigroup (..))
