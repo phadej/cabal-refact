@@ -16,22 +16,27 @@ import qualified Options.Applicative as O
 -------------------------------------------------------------------------------
 
 -- | Common options
-type Opts = () {- TODO: implement --dry #-}
+data Opts = Opts
+    { optsDry :: !Bool
+    }
+  deriving (Show)
+
+-- TODO: use own data type(s), not 'Bool'
 
 action :: O.Parser (IO ())
-action = flip ($) <$> opts <*> O.subparser cmds
+action = (\o c a -> c o a) <$> opts <*> O.subparser cmds <*> args
   where
-    cmds :: O.Mod O.CommandFields (Opts -> IO ())
+    cmds :: O.Mod O.CommandFields Action
     cmds = mconcat
         [ command "identity" "Identity refactoring, should be no-op"
-            (identityAction <$> args)
+            $ pure identityAction
         , command "increase-revision" "Increase the x-revision field"
-            (increaseRevisionAction <$> args)
+            $ pure increaseRevisionAction
         , command "set-revision" "Set the x-revision field"
-            (setRevisionAction <$> rev <*> args)
+            $ setRevisionAction <$> rev
         , command "populate-extra-source-files"
-             "Populate extra-source-field using specified globs"
-            (populateExtraSourceFilesAction <$> args)
+            "Populate extra-source-field using specified globs"
+            $ pure populateExtraSourceFilesAction
         ]
 
     command c d p = O.command c $ O.info (O.helper <*> p) $ mconcat
@@ -45,7 +50,15 @@ action = flip ($) <$> opts <*> O.subparser cmds
         ]
 
     opts :: O.Parser Opts
-    opts = pure ()
+    opts = Opts
+        <$> optsDryParser
+      where
+        optsDryParser  = fromMaybe True . lastOf folded <$> many optsDryParser'
+        optsDryParser' = O.flag' True flagDry <|> O.flag' False flagInplace
+        flagDry = O.short 'd' <> O.long "dry"
+            <> O.help "Dry run - do not modify files"
+        flagInplace = O.short 'i' <> O.long "inplace"
+            <> O.help "Modify files in place"
 
     rev :: O.Parser Int
     rev = O.argument O.auto $ mconcat
@@ -56,7 +69,7 @@ action = flip ($) <$> opts <*> O.subparser cmds
 -- Refactorings
 -------------------------------------------------------------------------------
 
-type Action = [FilePath] -> Opts -> IO ()
+type Action = Opts -> [FilePath] -> IO ()
 
 identityAction :: Action
 identityAction = refactMany identityRefactoring
@@ -77,15 +90,21 @@ populateExtraSourceFilesAction = refactManyWith
 -------------------------------------------------------------------------------
 
 refactMany :: Refactoring -> Action
-refactMany r fps _ = traverse_ (refact r) fps
+refactMany r opts = traverse_ (refact r opts)
 
-refact :: Refactoring -> FilePath -> IO ()
-refact r fp = do
+refact :: Refactoring -> Opts -> FilePath -> IO ()
+refact r opts fp = do
     input <- (<> "\n") . T.strip <$> T.readFile fp
     fields <- fromResult (parseFields fp input)
     let fields' = posFields . r . delFields $ fields
     let output = prettyFields fields'
     displayDiff input output
+    case () of
+        _ | output == input -> pure ()
+        _ | optsDry opts    -> putStrLn "INFO: Dry run, not modifying file"
+        _ | otherwise       -> do
+            putStrLn $ "Writing back to " <> fp
+            T.writeFile fp output
   where
     fromResult (Success a)  = pure a
     fromResult (Failure xs) = do
@@ -93,12 +112,12 @@ refact r fp = do
         fail "PARSE ERROR"
 
 refactManyWith :: (FilePath -> IO b) -> (b -> Refactoring) -> Action
-refactManyWith f r fps opts = traverse_ (refactWith f r opts) fps
+refactManyWith f r opts = traverse_ (refactWith f r opts)
 
 refactWith :: (FilePath -> IO b) -> (b -> Refactoring) -> Opts -> FilePath -> IO ()
-refactWith f r _opts fp = do
+refactWith f r opts fp = do
     b <- f fp
-    refact (r b) fp
+    refact (r b) opts fp
 
 -------------------------------------------------------------------------------
 -- Main
