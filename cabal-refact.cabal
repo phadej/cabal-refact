@@ -17,6 +17,43 @@ extra-source-files:
     CHANGELOG.md
     README.md
     -- cabal-refact-populate: fixtures/**/*.*
+    fixtures/identity/Agda.cabal
+    fixtures/identity/JuicyPixels.cabal
+    fixtures/identity/QuickCheck.cabal
+    fixtures/identity/adjunctions.cabal
+    fixtures/identity/aeson.cabal
+    fixtures/identity/arithmoi.cabal
+    fixtures/identity/bound.cabal
+    fixtures/identity/cabal-refact.cabal
+    fixtures/identity/doctest.cabal
+    fixtures/identity/fake-deps.cabal
+    fixtures/identity/free.cabal
+    fixtures/identity/hackage-cli.cabal
+    fixtures/identity/haddock.cabal
+    fixtures/identity/hashable.cabal
+    fixtures/identity/haxl.cabal
+    fixtures/identity/lens.cabal
+    fixtures/identity/md2sht.cabal
+    fixtures/identity/recursion-schemes.cabal
+    fixtures/identity/scientific.cabal
+    fixtures/identity/servant-mock.cabal
+    fixtures/identity/stack.cabal
+    fixtures/identity/stylish-haskell.cabal
+    fixtures/identity/these.cabal
+    fixtures/identity/uniform-pair.cabal
+    fixtures/identity/unordered-containers.cabal
+    fixtures/identity/vector-algorithms.cabal
+    fixtures/identity/vector.cabal
+    fixtures/increase-revision/cabal-refact.cabal
+    fixtures/increase-revision/cabal-refact.cabal.output
+    fixtures/increase-revision/focus.cabal
+    fixtures/increase-revision/focus.cabal.output
+    fixtures/increase-revision/focus2.cabal
+    fixtures/increase-revision/focus2.cabal.output
+    fixtures/populate-extra-source-files/cabal-refact.cabal
+    fixtures/populate-extra-source-files/cabal-refact.cabal.output
+    fixtures/populate-extra-source-files/cabal-refact2.cabal
+    fixtures/populate-extra-source-files/cabal-refact2.cabal.output
 
 source-repository head
   type: git

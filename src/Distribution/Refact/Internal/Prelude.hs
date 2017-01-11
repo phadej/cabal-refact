@@ -14,6 +14,8 @@ module Distribution.Refact.Internal.Prelude (
     traverse_, for_,
     -- * Data.List
     sortBy, sortOn,
+    -- * Data.List.NonEmpty
+    NonEmpty (..), some1,
     -- * Data.Maybe
     fromMaybe, listToMaybe,
     -- * Data.Monoid
@@ -52,6 +54,7 @@ import Data.Foldable              (for_, traverse_)
 import Data.Functor               (void)
 import Data.Int                   (Int64)
 import Data.List                  (sortBy, sortOn)
+import Data.List.NonEmpty         (NonEmpty (..), some1)
 import Data.Maybe                 (fromMaybe, listToMaybe)
 import Data.Monoid                (Endo (..))
 import Data.Semigroup             (Semigroup (..))
