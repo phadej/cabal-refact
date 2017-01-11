@@ -45,8 +45,7 @@ identityFixtures = do
         let fields' = posFields . delFields $ fields
         let output = prettyFields fields'
         when (input /= output) $ do
-            displayDiff input output
-            assertFailure "doesn't match"
+            assertFailure $ diffShowS input output ""
 
 refactoringFixtures :: String -> Refactoring -> IO TestTree
 refactoringFixtures name refactoring = do
@@ -62,8 +61,7 @@ refactoringFixtures name refactoring = do
         let fields' = posFields . refactoring . delFields $ fields
         let output = prettyFields fields'
         when (expected /= output) $ do
-            displayDiff expected output
-            assertFailure "doesn't match"
+            assertFailure $ diffShowS expected output ""
 
 -------------------------------------------------------------------------------
 -- Utility
@@ -72,5 +70,5 @@ refactoringFixtures name refactoring = do
 fromResult :: Result a -> IO a
 fromResult (Success a)  = pure a
 fromResult (Failure xs) = do
-    displayDoc $ _errDoc xs
-    fail "PARSE ERROR"
+    assertFailure $ show $ _errDoc xs
+    fail "" -- to make it return 'a'

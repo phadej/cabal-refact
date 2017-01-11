@@ -12,6 +12,7 @@ module Distribution.Refact (
     posFields,
     -- * Edit
     displayDiff,
+    diffShowS,
     -- * Refactorings
     Refactoring,
     identityRefactoring,
