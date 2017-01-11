@@ -19,7 +19,7 @@ setRevisionRefactoring = updateRevisionRefactoring . const
 updateRevisionRefactoring :: (Maybe Int -> Int) -> Refactoring
 updateRevisionRefactoring upd fs = case fs ^? topLevelField fieldName of
     -- no revision, use zero
-    Nothing -> (review _Field <$> insertAfterVersion as) <> bs
+    Nothing -> (review _Field  <$> insertAfterVersion as) <> bs
     -- otherwise, update
     Just _ -> fs & topLevelField fieldName %~ updateRevision
   where
@@ -35,16 +35,16 @@ updateRevisionRefactoring upd fs = case fs ^? topLevelField fieldName of
     ver' :: [FieldLine D]
     ver' = [FieldLine (D 0 $ length (fieldName ^. unpacked) + 3) ver]
 
-    insertAfterVersion [] = [(Name (D 1 0) fieldName, mempty, ver')]
+    insertAfterVersion [] = [(Name (D 1 0) fieldName, mempty, FieldLines ver')]
     insertAfterVersion (f@(Name d n, d', fls) : rest)
         | n == "version"
             = f
-            : (Name (d & dLine %~ max 1) fieldName, d', mimic fls d')
+            : (Name (d & dLine %~ max 1) fieldName, d', over _FieldLines (mimic d') fls)
             : rest
         | otherwise = f : insertAfterVersion rest
 
-    mimic []                  d = [FieldLine (d <> D 0 2) ver]
-    mimic (FieldLine d _ : _) _ = [FieldLine d ver]
+    mimic d []                  = [FieldLine (d <> D 0 2) ver]
+    mimic _ (FieldLine d _ : _) = [FieldLine d ver]
 
     updateRevision []                  = ver'
     updateRevision (FieldLine d v : _) =
@@ -52,7 +52,7 @@ updateRevisionRefactoring upd fs = case fs ^? topLevelField fieldName of
         in [FieldLine d v']
 
 topLevelField :: Applicative f => Text -> LensLike' f [Field D] [FieldLine D]
-topLevelField n = traverse . _Field . filtered (\t -> t ^. _1 . nameText == n) . _3
+topLevelField n = traverse . _Field . filtered (\t -> t ^. _1 . nameText == n) . _3 . _FieldLines
 
 spanMaybe :: (a -> Maybe b) -> [a] -> ([b], [a])
 spanMaybe _ xs@[]       =  ([], xs)

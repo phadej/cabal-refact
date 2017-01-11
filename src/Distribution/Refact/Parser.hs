@@ -28,12 +28,18 @@ fieldParser = do
     fieldParser' name <|> sectionParser name
 
 fieldParser' :: (CharParsing m, DeltaParsing m, IndentationParsing m) => Name SrcSpan -> m (Field SrcSpan)
-fieldParser' name =
-    Field name <$> srcSpanParser const (char ':') <* spaces' <*> fieldlines
+fieldParser' name = Field name
+    <$> srcSpanParser const (char ':')
+    <* spaces'
+    <*> fieldLinesParser
+
+fieldLinesParser
+    :: (CharParsing m, DeltaParsing m, IndentationParsing m)
+    => m (FieldValue SrcSpan)
+fieldLinesParser = FieldLines <$> fieldlines
   where
-    fieldlines = mk <$> l <*> localIndentation Gt (many l)
-    mk h t = filter (not . fieldLineNull) (h : t)
-    -- it's important not to use manyTill, otherwise newline will be included in the span
+    -- little hacky: we parse also all-spaces lines, but later filter them out
+    fieldlines = filter (not . fieldLineNull) <$> localIndentation Gt (many l)
     l = srcSpanParser (\s -> FieldLine s . view packed) (many $ satisfy (/= '\n')) <* nl
 
 sectionParser :: (CharParsing m, DeltaParsing m, IndentationParsing m) => Name SrcSpan -> m (Field SrcSpan)

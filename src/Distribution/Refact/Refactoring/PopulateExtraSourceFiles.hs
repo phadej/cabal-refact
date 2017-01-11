@@ -106,6 +106,6 @@ getDirectoryContentsRecursive' ignore' topdir = recurseDirectories [""]
 -------------------------------------------------------------------------------
 
 topLevelField :: Applicative f => Text -> LensLike' f [Field D] [FieldLine D]
-topLevelField n = traverse . _Field . filtered (\t -> t ^. _1 . nameText == n) . _3
+topLevelField n = traverse . _Field . filtered (\t -> t ^. _1 . nameText == n) . _3 . _FieldLines
 
 
