@@ -36,8 +36,9 @@ delField p f = case f of
     g (SS p' _) = diffPos p p'
 
 delFieldValue :: Pos -> FieldValue SrcSpan -> FieldValue D
-delFieldValue p (FieldLines fls)   = FieldLines (delFieldLines p fls)
-delFieldValue p (FieldNumber ss n) = FieldNumber (diffPos p $ ss ^. ssStart) n
+delFieldValue p (FieldLines fls)    = FieldLines (delFieldLines p fls)
+delFieldValue p (FieldNumber ss n)  = FieldNumber (diffPos p $ ss ^. ssStart) n
+delFieldValue p (FieldVersion ss v) = FieldVersion (diffPos p $ ss ^. ssStart) v
 
 delFieldLines :: Pos -> [FieldLine SrcSpan] -> [FieldLine D]
 delFieldLines _ [] = []
@@ -84,8 +85,9 @@ posField p (Section n t fs) = Section
 posField p (Comment _ t) = Comment p t
 
 posFieldValue :: Pos -> FieldValue D -> FieldValue Pos
-posFieldValue p (FieldLines fls)  = FieldLines (posFieldLines p fls)
-posFieldValue p (FieldNumber d n) = FieldNumber (addPos p d) n
+posFieldValue p (FieldLines fls)   = FieldLines (posFieldLines p fls)
+posFieldValue p (FieldNumber d n)  = FieldNumber (addPos p d) n
+posFieldValue p (FieldVersion d v) = FieldVersion (addPos p d) v
 
 posFieldLines :: Pos -> [FieldLine D] -> [FieldLine Pos]
 posFieldLines _ [] = []

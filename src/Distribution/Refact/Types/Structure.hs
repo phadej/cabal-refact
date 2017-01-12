@@ -3,6 +3,7 @@ module Distribution.Refact.Types.Structure where
 
 import Prelude ()
 import Distribution.Refact.Internal.Prelude
+import Distribution.Refact.Types.Version
 
 import qualified Data.Text as T
 
@@ -37,6 +38,7 @@ _Field = prism f g
 data FieldValue ann
     = FieldLines [FieldLine ann]  -- ^ /Default:/ collection of non-empty lines
     | FieldNumber !ann !Int       -- e.g. @x-revision@
+    | FieldVersion !ann !Version  -- e.g. @version@
   deriving (Eq, Show, Functor, Foldable, Traversable)
 
 _FieldLines :: Prism' (FieldValue a) [FieldLine a]
