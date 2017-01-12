@@ -51,6 +51,11 @@ _FieldNumber = prism (uncurry FieldNumber) $ \v -> case v of
     FieldNumber ann n -> Right (ann, n)
     _                 -> Left v
 
+_FieldVersion :: Prism' (FieldValue a) (a, Version)
+_FieldVersion = prism (uncurry FieldVersion) $ \v -> case v of
+    FieldVersion ann n -> Right (ann, n)
+
+    _                 -> Left v
 -- | A line of text representing the value of a field from a Cabal file.
 -- A field may contain multiple lines.
 --

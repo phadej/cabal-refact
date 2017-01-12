@@ -25,6 +25,8 @@ main = do
                 , "fixtures/bar.cabal"
                 , "Setup.hs"
                 ]
+        , refactoringFixtures "set-version" $
+            setVersionRefactoring $ Version $ 1 :| [2,3,4]
         ]
     defaultMain $ testGroup "fixtures" fixtures
 

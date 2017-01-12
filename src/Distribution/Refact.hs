@@ -3,6 +3,7 @@ module Distribution.Refact (
     -- * Types
     module Distribution.Refact.Types.Pos,
     module Distribution.Refact.Types.Structure,
+    module Distribution.Refact.Types.Version,
     -- * Pretty
     prettyFields,
     -- * Parsing
@@ -19,6 +20,7 @@ module Distribution.Refact (
     increaseRevisionRefactoring,
     setRevisionRefactoring,
     populateExtraSourceFilesRefactoring,
+    setVersionRefactoring,
     -- * Internal helpers
     displayDoc,
     Result (..),
@@ -35,9 +37,11 @@ import Distribution.Refact.Pretty
 import Distribution.Refact.Refactoring.Identity
 import Distribution.Refact.Refactoring.IncreaseRevision
 import Distribution.Refact.Refactoring.PopulateExtraSourceFiles
+import Distribution.Refact.Refactoring.SetVersion
 import Distribution.Refact.Tools.Edit
 import Distribution.Refact.Types.Pos
 import Distribution.Refact.Types.Refactoring
 import Distribution.Refact.Types.Structure
+import Distribution.Refact.Types.Version
 
 import Text.Trifecta (Result (..), _errDoc)
