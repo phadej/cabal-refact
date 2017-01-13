@@ -10,6 +10,7 @@ import Distribution.Refact.Internal.Prelude
 import Distribution.Refact.Tools.Pretty
 import Distribution.Refact.Types.Pos
 import Distribution.Refact.Types.Structure
+import Distribution.Refact.Types.Version
 
 -- | Make 'Text' from 'Field's, trying to respect 'Pos' annotations
 -- as well as possible.
@@ -37,8 +38,9 @@ prettyName :: Name Pos -> W ()
 prettyName (Name p t) = prettyTextAt p t
 
 prettyFieldValue :: FieldValue Pos -> W ()
-prettyFieldValue (FieldLines fls)  = traverse_ prettyFieldLine fls
-prettyFieldValue (FieldNumber p n) = prettyTextAt p (n ^. re _Show . packed)
+prettyFieldValue (FieldLines fls)   = traverse_ prettyFieldLine fls
+prettyFieldValue (FieldNumber p n)  = prettyTextAt p (n ^. re _Show . packed)
+prettyFieldValue (FieldVersion p v) = prettyTextAt p (versionToText v)
 
 prettyFieldLine :: FieldLine Pos -> W ()
 prettyFieldLine (FieldLine p t) = prettyTextAt p t

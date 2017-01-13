@@ -8,6 +8,7 @@ import Distribution.Refact.Internal.Prelude
 import Distribution.Refact.Tools.Trifecta
 import Distribution.Refact.Types.Pos
 import Distribution.Refact.Types.Structure
+import Distribution.Refact.Types.Version
 
 import Data.Char           (isLetter)
 import Text.Trifecta.Delta (Delta (..), HasDelta (..), column)
@@ -43,6 +44,7 @@ fieldValueParser name = fromMaybe fieldLinesParser $ x ^? ix name
   where
     x = toMapOf (folded . ifolded)
         [ ("x-revision", fieldNumberParser)
+        , ("version", fieldVersionParser)
         ]
 
 fieldLinesParser
@@ -60,6 +62,13 @@ fieldNumberParser
 fieldNumberParser =
     spaces' *> optional nl *>
     srcSpanParser FieldNumber integral <* nl
+
+fieldVersionParser
+    :: (DeltaParsing m, IndentationParsing m)
+    => m (FieldValue SrcSpan)
+fieldVersionParser =
+    spaces' *> optional nl *>
+    srcSpanParser FieldVersion versionParser <* nl
 
 sectionParser :: (DeltaParsing m, IndentationParsing m) => Name SrcSpan -> m (Field SrcSpan)
 sectionParser name =

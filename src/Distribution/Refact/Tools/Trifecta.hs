@@ -48,7 +48,7 @@ spaces' :: CharParsing m => m ()
 spaces' = skipMany (oneOf " \t")
 
 nl :: (CharParsing m, IndentationParsing m) => m ()
-nl = newline *> localIndentation Any spaces
+nl = oneOf "\n\r" *> localIndentation Any spaces
 
 integral :: (Num a, CharParsing m) => m a
 integral = foldl' (\x y -> x * 10 + y) 0 . map toNumber <$> some digit <?> "integer"

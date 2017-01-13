@@ -40,6 +40,8 @@ module Distribution.Refact.Internal.Prelude (
     -- * vector
     Vector,
     vector,
+    -- * extras
+    asText,
     ) where
 
 import Prelude
@@ -68,3 +70,6 @@ import Data.Text.Lens             (packed, unpacked)
 import Data.These                 (These (..))
 import Data.Vector                (Vector)
 import Data.Vector.Lens           (vector)
+
+asText :: Show a => Getter a Text
+asText = to show . packed
