@@ -80,6 +80,7 @@ library
       ansi-wl-pprint,
       bytestring,
       composition-extra == 2.0.*,
+      deriving-compat >= 0.3.5 && <0.4,
       directory,
       filepath,
       indentation-trifecta == 0.0.1,

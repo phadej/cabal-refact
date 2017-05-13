@@ -1,4 +1,6 @@
 {-# LANGUAGE DeriveTraversable #-}
+{-# LANGUAGE StandaloneDeriving #-}
+{-# LANGUAGE TemplateHaskell #-}
 module Distribution.Refact.Types.Structure where
 
 import Prelude ()
@@ -11,13 +13,15 @@ import qualified Data.Text as T
 -- Field
 -------------------------------------------------------------------------------
 
+-- | Field list.
+type Fields ann = [Sum Comment Field ann]
+
 -- | A Cabal-like file consists of a series of fields (@foo: bar@)
 -- and sections (@library ...@).
 data Field ann
     = Field   !(Name ann) ann (FieldValue ann)
-    | Section !(Name ann) !Text [Field ann]
-    | Comment !ann !Text
-  deriving (Eq, Show, Functor, Foldable, Traversable)
+    | Section !(Name ann) !Text (Fields ann)
+  deriving (Functor, Foldable, Traversable)
 
 instance Foldable1 Field
 
@@ -27,15 +31,6 @@ _Field = prism f g
     f (n, ann, fls) = Field n ann fls
     g (Field n ann fls) = Right (n, ann, fls)
     g x                 = Left x
-
--------------------------------------------------------------------------------
--- Comment
--------------------------------------------------------------------------------
-
--- | Comment
---
--- /Invariant:/ 'Text' has no newlines.
-newtype C = C Text
 
 -------------------------------------------------------------------------------
 -- Field Values
@@ -95,3 +90,34 @@ nameAnn f (Name a n) = f a <&> \b -> Name b n
 
 nameText :: Lens (Name a) (Name a) Text Text
 nameText f (Name a n) = f n <&> Name a
+
+-------------------------------------------------------------------------------
+-- Comment
+-------------------------------------------------------------------------------
+
+-- | Comment
+--
+-- /Invariant:/ 'Text' has no newlines.
+data Comment ann = Comment !ann !Text
+  deriving (Eq, Show, Functor, Foldable, Traversable)
+
+instance Foldable1 Comment
+
+-------------------------------------------------------------------------------
+-- Functor classes
+-------------------------------------------------------------------------------
+
+deriveEq1 ''FieldLine
+deriveEq1 ''Comment
+deriveEq1 ''Name
+deriveEq1 ''Field
+deriveEq1 ''FieldValue
+
+deriveShow1 ''FieldLine
+deriveShow1 ''Comment
+deriveShow1 ''Name
+deriveShow1 ''Field
+deriveShow1 ''FieldValue
+
+deriving instance Eq ann => Eq (Field ann)
+deriving instance Show ann => Show (Field ann)

@@ -6,8 +6,14 @@ module Distribution.Refact.Internal.Prelude (
     optional,
     -- * Control.Monad
     join, when,
+    -- * Data.Deriving
+    deriveEq1, deriveShow1,
     -- * Data.Functor
     void,
+    -- * Data.Functor.Classes
+    Eq1 (..), Show1 (..), showsBinaryWith,
+    -- * Data.Functor.Sum
+    Sum (..),
     -- * Data.Int
     Int64,
     -- * Data.Foldable
@@ -54,8 +60,11 @@ import Control.Monad              (join, when)
 import Control.Monad.IO.Class
 import Data.Align                 (Align (..))
 import Data.Bifunctor             (Bifunctor (..))
+import Data.Deriving              (deriveEq1, deriveShow1)
 import Data.Foldable              (for_, traverse_)
 import Data.Functor               (void)
+import Data.Functor.Classes       (Eq1 (..), Show1 (..), showsBinaryWith)
+import Data.Functor.Sum           (Sum (..))
 import Data.Int                   (Int64)
 import Data.List                  (sortBy, sortOn)
 import Data.List.NonEmpty         (NonEmpty (..), some1)
