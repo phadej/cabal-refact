@@ -22,10 +22,11 @@ import qualified Text.Regex.Applicative.Text as RE
 
 populateExtraSourceFilesRefactoring :: [FilePath] -> Refactoring
 populateExtraSourceFilesRefactoring files =
-    topLevelField "extra-source-files" %~ nubBy nubber . refactor
+    topLevelField "extra-source-files" . _FieldLines %~ nubBy nubber . refactor
   where
     nubber (FieldLine _ n) (FieldLine _ m) = n == m
 
+    refactor :: [FieldLine D] -> [FieldLine D]
     refactor []                    = []
     refactor (f@(FieldLine _ n) : fls) = case RE.match pragmaRe n of
         Nothing  -> f : refactor fls
@@ -100,12 +101,3 @@ getDirectoryContentsRecursive' ignore' topdir = recurseDirectories [""]
         ignore ['.']      = True
         ignore ['.', '.'] = True
         ignore x          = not (ignore' x)
-
--------------------------------------------------------------------------------
--- Utilities
--------------------------------------------------------------------------------
-
-topLevelField :: Applicative f => Text -> LensLike' f [Field D] [FieldLine D]
-topLevelField n = traverse . _Field . filtered (\t -> t ^. _1 . nameText == n) . _3 . _FieldLines
-
-

@@ -32,6 +32,9 @@ _Field = prism f g
     g (Field n ann fls) = Right (n, ann, fls)
     g x                 = Left x
 
+_InRField :: Prism' (Sum f Field a) (Name a, a, FieldValue a)
+_InRField = _InR . _Field
+
 -------------------------------------------------------------------------------
 -- Field Values
 -------------------------------------------------------------------------------

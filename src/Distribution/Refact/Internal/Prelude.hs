@@ -48,6 +48,8 @@ module Distribution.Refact.Internal.Prelude (
     vector,
     -- * extras
     asText,
+    _InR,
+    spanMaybe,
     ) where
 
 import Prelude
@@ -82,3 +84,15 @@ import Data.Vector.Lens           (vector)
 
 asText :: Show a => Getter a Text
 asText = to show . packed
+
+_InR :: Prism' (Sum f g a) (g a)
+_InR = prism InR g
+  where
+    g (InR x) = Right x
+    g x       = Left x
+
+spanMaybe :: (a -> Maybe b) -> [a] -> ([b], [a])
+spanMaybe _ xs@[]       =  ([], xs)
+spanMaybe p xs@(x:xs') = case p x of
+    Nothing -> ([], xs)
+    Just y  -> let (ys, zs) = spanMaybe p xs' in (y:ys,zs)
