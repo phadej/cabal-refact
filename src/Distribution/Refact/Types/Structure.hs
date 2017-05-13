@@ -29,6 +29,15 @@ _Field = prism f g
     g x                 = Left x
 
 -------------------------------------------------------------------------------
+-- Comment
+-------------------------------------------------------------------------------
+
+-- | Comment
+--
+-- /Invariant:/ 'Text' has no newlines.
+newtype C = C Text
+
+-------------------------------------------------------------------------------
 -- Field Values
 -------------------------------------------------------------------------------
 
@@ -56,6 +65,11 @@ _FieldVersion = prism (uncurry FieldVersion) $ \v -> case v of
     FieldVersion ann n -> Right (ann, n)
 
     _                 -> Left v
+
+-------------------------------------------------------------------------------
+-- FieldLine
+-------------------------------------------------------------------------------
+
 -- | A line of text representing the value of a field from a Cabal file.
 -- A field may contain multiple lines.
 --
