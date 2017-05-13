@@ -14,15 +14,15 @@ import Data.Char           (isLetter)
 import Text.Trifecta.Delta (Delta (..), HasDelta (..), column)
 
 -- | Parse 'Field's
-parseFields :: FilePath -> Text -> Result [Field SrcSpan]
+parseFields :: FilePath -> Text -> Result (Fields SrcSpan)
 parseFields = runIParser cabalFileParser
 
-cabalFileParser :: (DeltaParsing m, IndentationParsing m) => m [Field SrcSpan]
+cabalFileParser :: (DeltaParsing m, IndentationParsing m) => m (Fields SrcSpan)
 cabalFileParser = fieldsParser <* eof
 
-fieldsParser :: (DeltaParsing m, IndentationParsing m) => m [Field SrcSpan]
+fieldsParser :: (DeltaParsing m, IndentationParsing m) => m (Fields SrcSpan)
 fieldsParser = many $
-    absoluteIndentation fieldParser <|> localIndentation Any commentParser
+    absoluteIndentation (InR <$> fieldParser) <|> localIndentation Any (InL <$> commentParser)
 
 fieldParser :: (DeltaParsing m, IndentationParsing m) => m (Field SrcSpan)
 fieldParser = do
@@ -76,7 +76,7 @@ sectionParser name =
   where
     sectionArgs = view packed <$> manyTill (satisfy (/= ':')) nl
 
-commentParser :: (DeltaParsing m, IndentationParsing m) => m (Field SrcSpan)
+commentParser :: (DeltaParsing m, IndentationParsing m) => m (Comment SrcSpan)
 commentParser = (srcSpanParser Comment $ view packed <$> p) <* nl
   where
     p = (<>) <$> string "--" <*> many (satisfy (/= '\n'))

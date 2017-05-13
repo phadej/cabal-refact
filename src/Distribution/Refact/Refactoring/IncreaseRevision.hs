@@ -19,15 +19,15 @@ setRevisionRefactoring = updateRevisionRefactoring . const
 updateRevisionRefactoring :: (Maybe Int -> Int) -> Refactoring
 updateRevisionRefactoring upd fs = case fs ^? topLevelField fieldName of
     -- no revision, use zero
-    Nothing -> (review _Field  <$> insertAfterVersion as) <> bs
+    Nothing -> (review _InRField <$> insertAfterVersion as) <> bs
     -- otherwise, update
-    Just _ -> fs & topLevelField fieldName %~ upd . Just
+    Just _ -> fs & topLevelField fieldName . _FieldNumber . _2 %~ upd . Just
   where
     fieldName :: Text
     fieldName = "x-revision"
 
     -- fields and rest
-    (as, bs) = spanMaybe (preview _Field) fs
+    (as, bs) = spanMaybe (preview _InRField) fs
 
     ver :: Int
     ver = upd Nothing
@@ -45,12 +45,3 @@ updateRevisionRefactoring upd fs = case fs ^? topLevelField fieldName of
 
     mimic d Nothing  = FieldNumber (d <> D 0 2) ver
     mimic _ (Just d) = FieldNumber d ver
-
-topLevelField :: Applicative f => Text -> LensLike' f [Field D] Int
-topLevelField n = traverse . _Field . filtered (\t -> t ^. _1 . nameText == n) . _3 . _FieldNumber . _2
-
-spanMaybe :: (a -> Maybe b) -> [a] -> ([b], [a])
-spanMaybe _ xs@[]       =  ([], xs)
-spanMaybe p xs@(x:xs') = case p x of
-    Nothing -> ([], xs)
-    Just y  -> let (ys, zs) = spanMaybe p xs' in (y:ys,zs)

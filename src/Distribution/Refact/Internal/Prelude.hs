@@ -6,8 +6,14 @@ module Distribution.Refact.Internal.Prelude (
     optional,
     -- * Control.Monad
     join, when,
+    -- * Data.Deriving
+    deriveEq1, deriveShow1,
     -- * Data.Functor
     void,
+    -- * Data.Functor.Classes
+    Eq1 (..), Show1 (..), showsBinaryWith,
+    -- * Data.Functor.Sum
+    Sum (..),
     -- * Data.Int
     Int64,
     -- * Data.Foldable
@@ -42,6 +48,8 @@ module Distribution.Refact.Internal.Prelude (
     vector,
     -- * extras
     asText,
+    _InR,
+    spanMaybe,
     ) where
 
 import Prelude
@@ -54,8 +62,11 @@ import Control.Monad              (join, when)
 import Control.Monad.IO.Class
 import Data.Align                 (Align (..))
 import Data.Bifunctor             (Bifunctor (..))
+import Data.Deriving              (deriveEq1, deriveShow1)
 import Data.Foldable              (for_, traverse_)
 import Data.Functor               (void)
+import Data.Functor.Classes       (Eq1 (..), Show1 (..), showsBinaryWith)
+import Data.Functor.Sum           (Sum (..))
 import Data.Int                   (Int64)
 import Data.List                  (sortBy, sortOn)
 import Data.List.NonEmpty         (NonEmpty (..), some1)
@@ -73,3 +84,15 @@ import Data.Vector.Lens           (vector)
 
 asText :: Show a => Getter a Text
 asText = to show . packed
+
+_InR :: Prism' (Sum f g a) (g a)
+_InR = prism InR g
+  where
+    g (InR x) = Right x
+    g x       = Left x
+
+spanMaybe :: (a -> Maybe b) -> [a] -> ([b], [a])
+spanMaybe _ xs@[]       =  ([], xs)
+spanMaybe p xs@(x:xs') = case p x of
+    Nothing -> ([], xs)
+    Just y  -> let (ys, zs) = spanMaybe p xs' in (y:ys,zs)
